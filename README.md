@@ -1,7 +1,7 @@
 # module-3.15   
 ROS пакет для взаимодействия с ArUco марке.
 
-##Описание
+## Описание
 
 ---
 **ROS-пакет:**
@@ -60,7 +60,7 @@ ROS пакет для взаимодействия с ArUco марке.
      sudo rosdep init
      rosdep update
      rosdep install --from-paths src --ignore-src -y --skip-keys "fastcdr rti-connext-dds-5.3.1 urdfdom_headers"
-**2. Билдинг кода в рабочий директории** [примерно: 3 часа в зависимоти от тех. характеристик]
+**2. Билдинг кода в рабочий директории** [примерно 3 часа, в зависимоти от тех. характеристик]
 
     cd ~/ros2_galactic/
     colcon build --symlink-install     
