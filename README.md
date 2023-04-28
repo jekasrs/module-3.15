@@ -3,7 +3,6 @@ ROS пакет для взаимодействия с ArUco марке.
 
 ## Описание
 
----
 **ROS-пакет:**
 * ПО: ROS 2 Galactic Geochelone  
 * Язык программирования: C++, Python  
@@ -15,7 +14,6 @@ ROS пакет для взаимодействия с ArUco марке.
 
 ## Установка ROS 2 Galactic (Ubuntu Focal):  
 
-----
 ### Пред настройки  
     1. sudo apt install software-properties-common  
     2. sudo add-apt-repository universe  
@@ -26,6 +24,7 @@ ROS пакет для взаимодействия с ArUco марке.
     sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg  
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
+---
 ### Установка нужных пакетов  
 **1. Пакет для ROS**
 
@@ -50,6 +49,7 @@ ROS пакет для взаимодействия с ArUco марке.
        pytest \
        setuptools
 
+---
 ### Установка ROS 2 Galactic
 **1. Скачивание кода**
 
