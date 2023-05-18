@@ -1,3 +1,5 @@
+import cv2
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
@@ -17,6 +19,12 @@ class DetectionNode(Node):
     def imageRectifiedCallback(self, msg):
         self.get_logger().info("Rectified image received from Package\tSize: %dx%d - Timestamp: %u.%u sec ",
                                msg.width, msg.height, msg.header.stamp.sec, msg.header.stamp.nanosec)
+
+        height = msg.height
+        width = msg.width
+        channel = msg.step // msg.width
+        frame = np.reshape(msg.data, (height, width, channel))
+        cv2.imwrite("receive.png", frame)
 
 
 def main(args=None):
