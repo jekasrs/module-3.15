@@ -135,11 +135,14 @@ ROS пакет для взаимодействия с ArUco марке.
     
 В директории src/py_pubsub/py_pubsub находится весь исходных код приложения
 
-1. Файл define.py - константы и настраиваемые параметры  
-2. Файл utils.py - функции для детектирования и взаимодействия с маркерами  
-3. Файл DetectionNode.py - код для запуска детектирующий ноды 
-4. Файл PublisherNode.py - код для запуска захватывающий изображение с камеры ноды
+1. Файл [define.py](./src/py_pubsub/py_pubsub/define.py) - константы и настраиваемые параметры  
+2. Файл [utils.py](./src/py_pubsub/py_pubsub/utils.py) - функции для детектирования и взаимодействия с маркерами  
+3. Файл [DetectionNode.py](./src/py_pubsub/py_pubsub/DetectionNode.py) - код для запуска детектирующий ноды 
+4. Файл [PublisherNode.py](./src/py_pubsub/py_pubsub/PublisherNode.py) - код для запуска захватывающий изображение с камеры ноды
 
+В директории src/py_pubsub/py_pubsub/setup находится вспомогательные файл для: 
+1. Файл [calibrate.py](./src/py_pubsub/py_pubsub/setup/calibrate.py) - функции для калибровка камеры 
+2. Файл [generate.py](./src/py_pubsub/py_pubsub/setup/generate.py) - создание изображений AruCo маркеров  
   PublisherNode  
             |  
             |  
