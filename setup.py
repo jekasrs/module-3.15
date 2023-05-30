@@ -11,10 +11,10 @@ setup(
     packages=[PACKAGE_NAME],
     data_files=[
         ('share/ament_index/resource_index/packages',
-            ['resource/' + PACKAGE_NAME]),
+        ['resource/' + PACKAGE_NAME]),
         ('share/' + PACKAGE_NAME, ['package.xml']),
-        (os.path.join(SHARE_DIR, "launch"), glob(os.path.join("launch", "*.launch.py"))),
-        (os.path.join(SHARE_DIR, "config"), glob(os.path.join("config", "*.yaml")))
+        (os.path.join(SHARE_DIR, "config"), glob(os.path.join("config", "*.yaml"))),
+        (os.path.join(SHARE_DIR, "launch"), glob(os.path.join("launch","*.launch.py")))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -32,3 +32,4 @@ setup(
         ],
     },
 )
+

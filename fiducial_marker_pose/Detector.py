@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import yaml
 
 
 class Detector:
@@ -11,8 +12,6 @@ class Detector:
         "DICT_4X4_250": cv2.aruco.DICT_4X4_250,
         "DICT_4X4_1000": cv2.aruco.DICT_4X4_1000
     }
-    matrix_coefficients = np.array(((933.15867, 0, 657.59), (0, 933.1586, 400.36993), (0, 0, 1)))
-    distortion_coefficients = np.array((-0.43948, 0.18514, 0, 0))
 
     @staticmethod
     def aruco_display(corners, ids, image):
@@ -64,16 +63,18 @@ class Detector:
                 tvec_array.append(tvec)
         return rvec_array, tvec_array
 
-    def __init__(self, aruco_type):
+    def __init__(self, aruco_type, matrix_coefficients, distortion_coefficients):
+        self.__distortion_coefficients = distortion_coefficients
+        self.__matrix_coefficients = matrix_coefficients
+        self.aruco_type = aruco_type
+        self.arucoDict = cv2.aruco.Dictionary_get(self.ARUCO_DICTIONARIES[aruco_type])
+        self.arucoParams = cv2.aruco.DetectorParameters_create()
+
         self.__image = None
         self.__ids = None
         self.__corners = None
-
-        self.__is_markers_show = False
-        self.__is_vectors_show = False
-
-        self.arucoDict = cv2.aruco.Dictionary_get(self.ARUCO_DICTIONARIES[aruco_type])
-        self.arucoParams = cv2.aruco.DetectorParameters_create()
+        self.__is_markers_show = True
+        self.__is_vectors_show = True
 
     def feed(self, image):
         corners, ids, _ = cv2.aruco.detectMarkers(image, self.arucoDict, parameters=self.arucoParams)
@@ -98,15 +99,25 @@ class Detector:
 
     def setShowVectors(self, arg):
         self.__is_vectors_show = arg
+        
+    def getCorners(self):
+        return self.__corners
+
+    def getIds(self):
+        return self.__ids
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(0)
-    aruco_type = "DICT_4X4_1000"
-    detector = Detector(aruco_type)
+    with open('config/config.yaml') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
 
-    detector.setShowMarkers(True)
-    detector.setShowVectors(True)
+    aruco_type = config['aruco_type']
+    matrix_coefficients = np.array(config['matrix_coefficients'])
+    distortion_coefficients = np.array(config['distortion_coefficients'])
+
+    cap = cv2.VideoCapture(0)
+
+    detector = Detector(aruco_type, matrix_coefficients, distortion_coefficients)
 
     while cap.isOpened():
         _, img = cap.read()
