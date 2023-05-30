@@ -1,3 +1,0 @@
-[console_scripts]
-detector = py_pubsub.DetectionNode:main
-sender = py_pubsub.PublisherNode:main
