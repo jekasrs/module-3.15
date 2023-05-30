@@ -46,8 +46,7 @@ class Detector:
 
         return image
 
-    @classmethod
-    def aruco_get_pose_of_markers(cls, corners, ids):
+    def aruco_get_pose_of_markers(self, corners, ids):
         rvec_array = []
         tvec_array = []
 
@@ -57,15 +56,15 @@ class Detector:
         if len(corners) > 0:
             for i in range(0, len(ids)):
                 rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02,
-                                                                               cls.matrix_coefficients,
-                                                                               cls.distortion_coefficients)
+                                                                               self.matrix_coefficients,
+                                                                               self.distortion_coefficients)
                 rvec_array.append(rvec)
                 tvec_array.append(tvec)
         return rvec_array, tvec_array
 
     def __init__(self, aruco_type, matrix_coefficients, distortion_coefficients):
-        self.__distortion_coefficients = distortion_coefficients
-        self.__matrix_coefficients = matrix_coefficients
+        self.distortion_coefficients = distortion_coefficients
+        self.matrix_coefficients = matrix_coefficients
         self.aruco_type = aruco_type
         self.arucoDict = cv2.aruco.Dictionary_get(self.ARUCO_DICTIONARIES[aruco_type])
         self.arucoParams = cv2.aruco.DetectorParameters_create()

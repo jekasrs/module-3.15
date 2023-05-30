@@ -7,11 +7,11 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from sensor_msgs.msg import Image
 
-from fiducail_marker_pose.Detector import Detector
+from fiducial_marker_pose.Detector import Detector
 
 class MarkerEstimator(Node):
 
-    def __init__(self, detector):
+    def __init__(self):
         super().__init__('marker_estimator')
         video_qos = QoSProfile(    
             reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
@@ -20,10 +20,17 @@ class MarkerEstimator(Node):
         )
         self.i = 0
         self.subscription = self.create_subscription(Image, "image_raw", self.imageRectifiedCallback, qos_profile=video_qos)
-
-        self.detector = detector
-        self.detector.setShowMarkers(True)
-        self.detector.setShowVectors(True)
+        
+        self.declare_parameter('marker_estimator_params_yaml')
+        params_yaml_path = self.get_parameter('marker_estimator_params_yaml').get_parameter_value().string_value
+        
+        with open(params_yaml_path, 'r') as f:
+            config = yaml.load(f, Loader=yaml.FullLoader)
+            aruco_type = config['aruco_type']
+            atrix_coefficients = np.array(config['matrix_coefficients'])
+            distortion_coefficients = np.array(config['distortion_coefficients'])
+            detector = Detector(aruco_type, matrix_coefficients, distortion_coefficients)
+            self.detector = detector
 
     def imageRectifiedCallback(self, msg):
         height = msg.height
@@ -49,19 +56,11 @@ class MarkerEstimator(Node):
 
 
 def main(args=None):
-    with open('config/config.yaml') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-
-    aruco_type = config['aruco_type']
-    matrix_coefficients = np.array(config['matrix_coefficients'])
-    distortion_coefficients = np.array(config['distortion_coefficients'])
-
-    detector = Detector(aruco_type, matrix_coefficients, distortion_coefficients)
 
     rclpy.init(args=args)
     print("[INFO]: marker_estimator init successful")
 
-    node = MarkerEstimator(detector)
+    node = MarkerEstimator()
     rclpy.spin(node)
     node.destroy_node()
 
