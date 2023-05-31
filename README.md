@@ -72,38 +72,43 @@ ROS пакет для взаимодействия с ArUco марке.
 ## Создание ROS пакета
     mkdir -p ~/ros2_ws/src  
     cd ~/ros2_ws/src  
-    ros2 pkg create --build-type ament_python py_pubsub  
-В директории *ros2_ws/src/py_pubsub/py_pubsu* находится проект на языке python. 
+    ros2 pkg create --build-type ament_python fiducial_marker_pose  
+В директории *ros2_ws/src/fiducial_marker_pose/fiducial_marker_pose* находится проект на языке python. 
 
 ### Настройки пакета 
 
 В **package.xml** нужно изменить  
 
-    <description>Examples of minimal publisher/subscriber using rclpy</description>
-    <maintainer email="you@email.com">Your Name</maintainer>
-    <license>Apache License 2.0</license>
+      <name>fiducial_marker_pose</name>
+      <version>1.0.0</version>
+      <description>Package for reading video stream and publishing information about detected AruCo markers</description>
+      <author email="jekasjeny1012@gmail.com">Evgenii Smirnov</author>
+      <maintainer email="voltage.machine@yandex.ru">Polytech Voltage Machine</maintainer>
 В конце файла нужно добавить необходимые зависимости для узлов 
 
 Пример :
 
-    <exec_depend>rclpy</exec_depend>
-    <exec_depend>std_msgs</exec_depend>
-    <exec_depend>sensor_msgs</exec_depend>
+    <depend>rclpy</depend>
+    <depend>sensor_msgs</depend>
+    <depend>python3-opencv</depend>
+    <depend>yaml</depend>
+    <exec_depend>ros2launch</exec_depend>
 
 В **setup.py** нужно повторить основную информацию
 
-    maintainer='YourName',
-    maintainer_email='you@email.com',
-    description='Examples of minimal publisher/subscriber using rclpy',
-    license='Apache License 2.0', 
+    author='Evgenii Smirnov',
+    author_email='jekasjeny1012@gmail.com',
+    maintainer='Polytech Voltage Machine',
+    maintainer_email='voltage.machine@yandex.ru',
+    license='Apache License'
 
 И следующую конструкцию: 
 
     entry_points={
         'console_scripts': [
-            'detector = py_pubsub.DetectionNode:main',
-            'image_invader = py_pubsub.PublisherNode:main',
-            ],
+            'marker_estimator = fiducial_marker_pose.MarkerEstimator:main',
+            'camera_publisher = fiducial_marker_pose.CameraPublisher:main',
+        ],
     },
 
 
@@ -112,51 +117,51 @@ ROS пакет для взаимодействия с ArUco марке.
     cd 
     source ~/ros2_galactic/install/local_setup.bash
     cd ~/ros2_ws
-    . install/setup.bash
     rosdep install -i --from-path src --rosdistro foxy -y
-    colcon build --packages-select py_pubsub
+    colcon build --packages-select fiducial_marker_pose
 
-### Запуск в новом терминале (разных)
-
-    ros2 run py_pubsub detector
-    ros2 run py_pubsub image_invader
+### Запуск основного функционального узла, определяющий маркер: 
+    . install/setup.bash
+    ros2 run fiducial_marker_pose marker_estimator
+    
+### Запуск отправляющиего изображения узла (опциональный, нужен только для отладки): 
+    . install/setup.bash
+    ros2 run fiducial_marker_pose camera_publisher
 
 
 ## Cтруктура проекта 
 
-| Название директории | Описание                        |
-|---------------------|---------------------------------|
-| ros_ws              | Рабочая директория              |
-| ├── build           | Файлы компиляции                |
-| ├── install         | Установщик                      |
-| ├── log             | Логи                            |
-| └── src             | Директория проекта              |
+| Название директории      | Описание                                       |
+|--------------------------|------------------------------------------------|
+| ros2_ws                  | Рабочая директория                             |
+| ├── .calibration         | Скрипт для калибрвоки камеры                   |
+| ├── .generator           | Скрипт для создания изображения аруко маркеров |
+| ├── config               | Глобальные параметры в YAML-файл               |                                       |
+| ├── fiducial_marker_pose | Директория проекта (приложение)                |
+| ├── launch               | launch-файл для запуска узла                   |
+| ├── test                 | Cкрипты для тестирования                       |
+| ├── msg                  | Опредления структуры сообщения                 |
+| ├── package.xml          | Описание свойств пакета                        |
+| └── setup.py             | Конфигурация проека                            |
   
-    
-В директории src/py_pubsub/py_pubsub находится весь исходных код приложения
+### Функциональная схема пакета
 
-1. Файл [define.py](./src/py_pubsub/py_pubsub/define.py) - константы и настраиваемые параметры  
-2. Файл [utils.py](./src/py_pubsub/py_pubsub/utils.py) - функции для детектирования и взаимодействия с маркерами  
-3. Файл [DetectionNode.py](./src/py_pubsub/py_pubsub/DetectionNode.py) - код для запуска детектирующий ноды 
-4. Файл [PublisherNode.py](./src/py_pubsub/py_pubsub/PublisherNode.py) - код для запуска захватывающий изображение с камеры ноды
-
-В директории src/py_pubsub/py_pubsub/setup находится вспомогательные файл для: 
-1. Файл [calibrate.py](./src/py_pubsub/py_pubsub/setup/calibrate.py) - функции для калибровка камеры 
-2. Файл [generate.py](./src/py_pubsub/py_pubsub/setup/generate.py) - создание изображений AruCo маркеров  
-  PublisherNode  
+  PublisherNode          узел, отправляющий изображение  
             |  
             |  
        (Image)  
             |  
             |  
-[sensors_msgs/image]  
+   [image_raw]          topic 1   
             |  
             |  
        (Image)  
             |  
             |  
- DetectionNode  
+ DetectionNode           узел, определяющий положение маркер  
             |  
             |  
-Сохраняет файл с изображением  
-[TODO: отправить координаты маркера в topic]  
+      (Marker)  
+            |  
+            |  
+   [marker_raw]          topic 2   
