@@ -2,12 +2,13 @@ import cv2
 import numpy as np
 import yaml
 import tf2_geometry_msgs
+import tf2_ros
 
+from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Pose
+from pose_interfaces.msg import Point2D
+from pose_interfaces.msg import Marker
 from tf2_ros import transform_listener
-from fiducial_marker_pose.msg import Point2D
-from fiducial_marker_pose.msg import Marker
-
 
 class Detector:
     """Displays markers and/or vectors on the image"""
@@ -71,29 +72,29 @@ class Detector:
     def aruco_get_pose_of_marker(self, corner, id):
         marker = Marker()
 
-        marker.id = id
+        marker.id = int(id)
         marker.length = 1.0
-
-        marker.c1.x, marker.c2.x, marker.c3.x, marker.c4.x = corner[0][0], corner[1][0], corner[2][0], corner[3][0]
-        marker.c1.y, marker.c2.y, marker.c3.y, marker.c4.y = corner[0][1], corner[1][1], corner[2][1], corner[3][1]
+        cor = corner[0]
+        
+        marker.c1.x, marker.c2.x, marker.c3.x, marker.c4.x = float(cor[0][0]), float(cor[1][0]), float(cor[2][0]), float(cor[3][0])
+        marker.c1.y, marker.c2.y, marker.c3.y, marker.c4.y = float(cor[0][1]), float(cor[1][1]), float(cor[2][1]), float(cor[3][1])
 
         rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corner, 0.02,
                                                                        self.matrix_coefficients,
                                                                        self.distortion_coefficients)
-        marker.pose.position.x = tvec[0]
-        marker.pose.position.y = tvec[1]
-        marker.pose.position.z = tvec[2]
+        marker.pose.position.x = tvec[0][0][0]
+        marker.pose.position.y = tvec[0][0][1]
+        marker.pose.position.z = tvec[0][0][2]
 
         angle = np.linalg.norm(rvec)
-        axis = rvec / angle
+        axis = rvec[0][0] / angle
 
-        q = tf2_geometry_msgs.transformations.Quaternion()
-        q = tf2_geometry_msgs.transformations.quaternion_about_axis(angle, axis)
-
-        marker.pose.orientation.w = q.w
-        marker.pose.orientation.x = q.x
-        marker.pose.orientation.y = q.y
-        marker.pose.orientation.z = q.z
+        # q = Quaternion(angle, axis[0], axis[1], axis[2])
+        
+        marker.pose.orientation.w = angle
+        marker.pose.orientation.x = axis[0]
+        marker.pose.orientation.y = axis[1]
+        marker.pose.orientation.z = axis[2]
 
         return marker
 

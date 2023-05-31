@@ -1,5 +1,16 @@
-# module-3.15   
-ROS пакет для взаимодействия с ArUco марке.
+# module-3.15
+#### ROS пакет для взаимодействия с ArUco марке.
+
+---
+
+## TODO  
+
+---
+1. Исправить лаунч файл
+2. Конфиг не читается
+3. Определиться с содержанием отправляемого сообщения
+4. Протестировать получение изображения с camera_drive  
+
 
 ## Описание
 
@@ -12,6 +23,44 @@ ROS пакет для взаимодействия с ArUco марке.
 **Функционал:** 
 * Распознавание ArUco-маркеров
 * Оценка положения ArUco-маркеров относительно платформы
+
+## Cтруктура проекта 
+
+---
+| Название директории / файла | Описание                                        |
+|-----------------------------|-------------------------------------------------|
+| .calibration                | Скрипт для калибрвоки камеры                    |
+| .generator                  | Скрипт для создания изображения аруко маркеров  |
+| config                      | Глобальные параметры в YAML-файл                |                                       |
+| fiducial_marker_pose        | Директория пакета с узлом (приложение)          |
+| launch                      | launch-файл для запуска узла                    |
+| pose_interfaces             | Директория пакета с кастомными сообщениями      |
+| test                        | Cкрипты для тестирования                        |
+| package.xml                 | Описание свойств пакета                         |
+| setup.py                    | Конфигурация проека                             |
+  
+## Функциональная схема пакета
+
+---
+  PublisherNode          узел, отправляющий изображение  
+            |  
+            |  
+       (Image)  
+            |  
+            |  
+   [image_raw]           topic 1   
+            |  
+            |  
+       (Image)  
+            |  
+            |  
+ DetectionNode           узел, определяющий положение маркер  
+            |  
+            |  
+      (Marker)  
+            |  
+            |  
+   [marker_raw]          topic 2  
 
 ## Установка ROS 2 Galactic (Ubuntu Focal):  
 
@@ -70,6 +119,8 @@ ROS пакет для взаимодействия с ArUco марке.
     ~/ros2_galactic/install/local_setup.bash    
 
 ## Создание ROS пакета
+
+---
     mkdir -p ~/ros2_ws/src  
     cd ~/ros2_ws/src  
     ros2 pkg create --build-type ament_python fiducial_marker_pose  
@@ -112,56 +163,24 @@ ROS пакет для взаимодействия с ArUco марке.
     },
 
 
-### Сборка 
+## Запуск 
 
+---
     cd 
     source ~/ros2_galactic/install/local_setup.bash
     cd ~/ros2_ws
     rosdep install -i --from-path src --rosdistro foxy -y
+    colcon build --packages-select pose_interfaces
     colcon build --packages-select fiducial_marker_pose
 
-### Запуск основного функционального узла, определяющий маркер: 
+### Проверка что все кастомные сообщения доступны к сипользованию
+    ros2 interfaces show pose_interfaces/msg/MarkerArray  
+
+### Запуск основного функционального узла, определяющий маркер:  
     . install/setup.bash
     ros2 run fiducial_marker_pose marker_estimator
     
 ### Запуск отправляющиего изображения узла (опциональный, нужен только для отладки): 
     . install/setup.bash
-    ros2 run fiducial_marker_pose camera_publisher
+    ros2 run fiducial_marker_pose camera_publisher  
 
-
-## Cтруктура проекта 
-
-| Название директории      | Описание                                       |
-|--------------------------|------------------------------------------------|
-| ros2_ws                  | Рабочая директория                             |
-| ├── .calibration         | Скрипт для калибрвоки камеры                   |
-| ├── .generator           | Скрипт для создания изображения аруко маркеров |
-| ├── config               | Глобальные параметры в YAML-файл               |                                       |
-| ├── fiducial_marker_pose | Директория проекта (приложение)                |
-| ├── launch               | launch-файл для запуска узла                   |
-| ├── test                 | Cкрипты для тестирования                       |
-| ├── msg                  | Опредления структуры сообщения                 |
-| ├── package.xml          | Описание свойств пакета                        |
-| └── setup.py             | Конфигурация проека                            |
-  
-### Функциональная схема пакета
-
-  PublisherNode          узел, отправляющий изображение  
-            |  
-            |  
-       (Image)  
-            |  
-            |  
-   [image_raw]          topic 1   
-            |  
-            |  
-       (Image)  
-            |  
-            |  
- DetectionNode           узел, определяющий положение маркер  
-            |  
-            |  
-      (Marker)  
-            |  
-            |  
-   [marker_raw]          topic 2   

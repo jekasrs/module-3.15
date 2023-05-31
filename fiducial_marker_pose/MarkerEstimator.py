@@ -8,9 +8,9 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from sensor_msgs.msg import Image
 
 from fiducial_marker_pose.Detector import Detector
-from fiducial_marker_pose.msg import Point2D
-from fiducial_marker_pose.msg import Marker
-from fiducial_marker_pose.msg import MarkerArray
+from pose_interfaces.msg import Point2D
+from pose_interfaces.msg import Marker
+from pose_interfaces.msg import MarkerArray
 
 class MarkerEstimator(Node):
 
@@ -28,7 +28,7 @@ class MarkerEstimator(Node):
         self.declare_parameter('marker_estimator_params_yaml')
         params_yaml_path = self.get_parameter('marker_estimator_params_yaml').get_parameter_value().string_value
         
-        with open(params_yaml_path, 'r') as f:
+        with open('/home/ros/Desktop/project/ros2_ws/src/fiducial_marker_pose/config/params.yaml', 'r') as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
             aruco_type = config['aruco_type']
             matrix_coefficients = np.array(config['matrix_coefficients'])
@@ -46,9 +46,10 @@ class MarkerEstimator(Node):
         if len(self.detector.getCorners()) > 0:
 
             # [debug] save file
+            self.counter += 1
             img = self.detector.visualise()
             flipped_img = cv2.flip(img, 1)
-            file_name = 'received' + str(self.i) + '.png'
+            file_name = 'received' + str(self.counter) + '.png'
             cv2.imwrite(file_name, flipped_img)
             self.get_logger().info('[DETECTION]: file has saved')
 
@@ -56,14 +57,12 @@ class MarkerEstimator(Node):
             markers_msg = MarkerArray()
 
             for i in range(0, len(self.detector.getIds())):
-                self.counter += 1
-
                 # get pose
                 marker = self.detector.aruco_get_pose_of_marker(self.detector.getCorners()[i], self.detector.getIds()[i])
-                markers_msg[i] = marker
+                markers_msg.markers.append(marker)
 
                 # [debug] logger
-                str_info = "[DETECTION]: marker {id}= " + marker.id
+                str_info = "[DETECTION]: marker {id}= " + str(marker.id)
                 self.get_logger().info(str_info)
 
             # send
