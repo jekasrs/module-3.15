@@ -8,6 +8,9 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from sensor_msgs.msg import Image
 
 from fiducial_marker_pose.Detector import Detector
+from fiducial_marker_pose.msg import Point2D
+from fiducial_marker_pose.msg import Marker
+from fiducial_marker_pose.msg import MarkerArray
 
 class MarkerEstimator(Node):
 
@@ -18,16 +21,17 @@ class MarkerEstimator(Node):
             history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
             depth=1
         )
-        self.i = 0
+        self.counter = 0
         self.subscription = self.create_subscription(Image, "image_raw", self.imageRectifiedCallback, qos_profile=video_qos)
-        
+        self.publisher_ = self.create_publisher(MarkerArray, 'marker_raw', 10)
+
         self.declare_parameter('marker_estimator_params_yaml')
         params_yaml_path = self.get_parameter('marker_estimator_params_yaml').get_parameter_value().string_value
         
         with open(params_yaml_path, 'r') as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
             aruco_type = config['aruco_type']
-            atrix_coefficients = np.array(config['matrix_coefficients'])
+            matrix_coefficients = np.array(config['matrix_coefficients'])
             distortion_coefficients = np.array(config['distortion_coefficients'])
             detector = Detector(aruco_type, matrix_coefficients, distortion_coefficients)
             self.detector = detector
@@ -40,19 +44,30 @@ class MarkerEstimator(Node):
 
         self.detector.feed(frame)
         if len(self.detector.getCorners()) > 0:
-            self.i += 1
 
-            rvec_arr, tvec_arr = self.detector.aruco_get_pose_of_markers(self.detector.getCorners(), self.detector.getIds())
-
+            # [debug] save file
             img = self.detector.visualise()
             flipped_img = cv2.flip(img, 1)
             file_name = 'received' + str(self.i) + '.png'
             cv2.imwrite(file_name, flipped_img)
             self.get_logger().info('[DETECTION]: file has saved')
 
-            for r, t in zip(rvec_arr, tvec_arr):
-                str_info = "[DETECTION]: vectors are: r=" + str(r) + " t=" + str(t)
+            # construct message
+            markers_msg = MarkerArray()
+
+            for i in range(0, len(self.detector.getIds())):
+                self.counter += 1
+
+                # get pose
+                marker = self.detector.aruco_get_pose_of_marker(self.detector.getCorners()[i], self.detector.getIds()[i])
+                markers_msg[i] = marker
+
+                # [debug] logger
+                str_info = "[DETECTION]: marker {id}= " + marker.id
                 self.get_logger().info(str_info)
+
+            # send
+            self.publisher_.publish(markers_msg)
 
 
 def main(args=None):

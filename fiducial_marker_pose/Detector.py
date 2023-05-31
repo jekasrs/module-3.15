@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
 import yaml
+import tf2_geometry_msgs
+
+from geometry_msgs.msg import Pose
+from tf2_ros import transform_listener
+from fiducial_marker_pose.msg import Point2D
+from fiducial_marker_pose.msg import Marker
 
 
 class Detector:
@@ -61,6 +67,35 @@ class Detector:
                 rvec_array.append(rvec)
                 tvec_array.append(tvec)
         return rvec_array, tvec_array
+
+    def aruco_get_pose_of_marker(self, corner, id):
+        marker = Marker()
+
+        marker.id = id
+        marker.length = 1.0
+
+        marker.c1.x, marker.c2.x, marker.c3.x, marker.c4.x = corner[0][0], corner[1][0], corner[2][0], corner[3][0]
+        marker.c1.y, marker.c2.y, marker.c3.y, marker.c4.y = corner[0][1], corner[1][1], corner[2][1], corner[3][1]
+
+        rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corner, 0.02,
+                                                                       self.matrix_coefficients,
+                                                                       self.distortion_coefficients)
+        marker.pose.position.x = tvec[0]
+        marker.pose.position.y = tvec[1]
+        marker.pose.position.z = tvec[2]
+
+        angle = np.linalg.norm(rvec)
+        axis = rvec / angle
+
+        q = tf2_geometry_msgs.transformations.Quaternion()
+        q = tf2_geometry_msgs.transformations.quaternion_about_axis(angle, axis)
+
+        marker.pose.orientation.w = q.w
+        marker.pose.orientation.x = q.x
+        marker.pose.orientation.y = q.y
+        marker.pose.orientation.z = q.z
+
+        return marker
 
     def __init__(self, aruco_type, matrix_coefficients, distortion_coefficients):
         self.distortion_coefficients = distortion_coefficients

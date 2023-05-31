@@ -8,7 +8,7 @@ from std_msgs.msg import Header
 
 class PublisherNode(Node):
     def __init__(self, capture):
-        super().__init__('invader_node')
+        super().__init__('camera_publisher')
         self.publisher_ = self.create_publisher(Image, 'image_raw', 10)
         self.capture = capture 
         timer_period = 0.5
@@ -42,13 +42,13 @@ def main(args=None):
     capture = cv2.VideoCapture(0)
 
     rclpy.init(args=args)
-    print("[INFO]: invader_node init successful")
+    print("[INFO]: camera_publisher init successful")
 
     node = PublisherNode(capture)
     rclpy.spin(node)
     node.destroy_node()
 
-    print("[INFO]: invader_node shutdown successful")
+    print("[INFO]: camera_publisher shutdown successful")
     rclpy.shutdown()
 
     cv2.destroyAllWindows()
