@@ -1,11 +1,8 @@
 # module-3.15
 #### ROS пакет для взаимодействия с ArUco марке.
 
----
-
 ## TODO  
 
----
 1. Исправить лаунч файл
 2. Конфиг не читается
 3. Определиться с содержанием отправляемого сообщения
@@ -14,7 +11,6 @@
 
 ## Описание
 
----
 **ROS-пакет:**
 * ПО: ROS 2 Galactic Geochelone  
 * Язык программирования: Python  
@@ -26,7 +22,6 @@
 
 ## Cтруктура проекта 
 
----
 | Название директории / файла | Описание                                        |
 |-----------------------------|-------------------------------------------------|
 | .calibration                | Скрипт для калибрвоки камеры                    |
@@ -41,30 +36,28 @@
   
 ## Функциональная схема пакета
 
----
-  PublisherNode          узел, отправляющий изображение  
+  **PublisherNode**          узел, отправляющий изображение  
             |  
             |  
        (Image)  
             |  
             |  
-   [image_raw]           topic 1   
+   [**image_raw**]           topic 1   
             |  
             |  
        (Image)  
             |  
             |  
- DetectionNode           узел, определяющий положение маркер  
+ **DetectionNode**           узел, определяющий положение маркер  
             |  
             |  
-      (Marker)  
+      (Markers)  
             |  
             |  
-   [marker_raw]          topic 2  
+   [**marker_raw**]          topic 2  
 
 ## Установка ROS 2 Galactic (Ubuntu Focal):  
 
-----
 ### Пред настройки  
     1. sudo apt install software-properties-common  
     2. sudo add-apt-repository universe  
@@ -120,7 +113,6 @@
 
 ## Создание ROS пакета
 
----
     mkdir -p ~/ros2_ws/src  
     cd ~/ros2_ws/src  
     ros2 pkg create --build-type ament_python fiducial_marker_pose  
@@ -165,7 +157,6 @@
 
 ## Запуск 
 
----
     cd 
     source ~/ros2_galactic/install/local_setup.bash
     cd ~/ros2_ws
