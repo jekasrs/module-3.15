@@ -1,0 +1,10 @@
+input_files:
+    - path: ./tests/output_1.5_5.txt
+      marker_size: 5x5
+    - path: ./tests/output_1.5_10.txt
+      marker_size: 10x10
+    - path: ./tests/output_1.5_15.txt
+      marker_size: 15x15
+marker_id: 10
+test_name: "Тест 1.5 метра"
+

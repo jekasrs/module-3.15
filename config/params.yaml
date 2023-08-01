@@ -1,7 +1,0 @@
-aruco_type: "DICT_4X4_1000"
-
-matrix_coefficients:
-  - [933.15867, 0, 657.59]
-  - [0, 933.1586, 400.36993]
-  - [0, 0, 1]
-distortion_coefficients: [-0.43948, 0.18514, 0, 0]

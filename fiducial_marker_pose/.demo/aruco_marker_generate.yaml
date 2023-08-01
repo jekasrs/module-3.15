@@ -1,0 +1,5 @@
+aruco_type: "DICT_4X4_1000"                   # DICT_4X4_50, DICT_4X4_100, DICT_4X4_250, DICT_4X4_1000
+marker_ids: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]    # Valid ids go from 0 to N depending on the dictionary
+image_size: 1000                              # Size of the output marker image in pixels
+marker_border: 1                              # Width of the marker black border in bits
+dir_path : "./example/"

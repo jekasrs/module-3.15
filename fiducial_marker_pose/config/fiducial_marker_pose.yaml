@@ -1,0 +1,7 @@
+camera:
+  marker_estimator:
+    ros__parameters:
+      aruco_type: "DICT_4X4_1000"   # DICT_4X4_50, DICT_4X4_100, DICT_4X4_250, DICT_4X4_1000
+      marker_size: 0.1              # Marker side length in meters
+      use_compressed: False         # If enabled, compressed images are used
+      debug: False                  # If enabled, images with a labeled marker are published, publishing markers in rviz
